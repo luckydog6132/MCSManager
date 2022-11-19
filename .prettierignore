@@ -5,20 +5,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-test.txt
-*.bat
 
-src/public
-*.code-workspace
-vscode/
-.vscode/
-Daemon/
 data/
-dist/
-out/
-public/
-production/
-.DS_Store
+error
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -35,7 +24,6 @@ lib-cov
 # Coverage directory used by tools like istanbul
 coverage
 *.lcov
-error
 
 # nyc test coverage
 .nyc_output
@@ -117,8 +105,3 @@ dist
 
 # TernJS port file
 .tern-port
-workspace.code-workspace
-src/public/1.png
-
-# IntelliJ Idea project files
-/.idea/*
