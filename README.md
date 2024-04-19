@@ -1,252 +1,199 @@
-<img src="https://public-link.oss-cn-shenzhen.aliyuncs.com/mcsm_picture/logo.png" alt="MCSManagerLogo.png" width="510px" />
+<div align="center">
+  <a href="https://mcsmanager.com/" target="_blank">
+    <img src="https://public-link.oss-cn-shenzhen.aliyuncs.com/mcsm_picture/logo.png" alt="MCSManagerLogo.png" width="510px" />    
+  </a>
 
-<br />
+  <br />
+  
+  <h1 id="mcsmanager">
+    <a href="https://mcsmanager.com/" target="_blank">MCSManager Panel</a>
+  </h1>
 
-[![Status](https://img.shields.io/badge/npm-v6.14.15-blue.svg)](https://www.npmjs.com/)
-[![Status](https://img.shields.io/badge/node-v14.17.6-blue.svg)](https://nodejs.org/en/download/)
+[![--](https://img.shields.io/badge/Support-Windows/Linux-green.svg)](https://github.com/MCSManager)
+[![Status](https://img.shields.io/badge/npm-v8.9.14-blue.svg)](https://www.npmjs.com/)
+[![Status](https://img.shields.io/badge/node-v16.20.2-blue.svg)](https://nodejs.org/en/download/)
 [![Status](https://img.shields.io/badge/License-Apache%202.0-red.svg)](https://github.com/MCSManager)
 
-[Official Website](http://mcsmanager.com/) | [Web Project](https://github.com/MCSManager/MCSManager) | [UI Project](https://github.com/MCSManager/UI) | [Daemon Project](https://github.com/MCSManager/Daemon)
+[Official Website](http://mcsmanager.com/) | [Docs](https://docs.mcsmanager.com/) | [Discord](https://discord.gg/BNpYMVX7Cd)
 
+[English](README.md) | [简体中文](README_ZH.md) | [繁體中文](README_TW.md)
 
-[English](readme.md) | [简体中文](README_CN.md) 
-
+</div>
 
 <br />
 
-## Introduction
+## What is MCSManager?
 
-MCSManager Panel（abbr: MCSM Panel）is a multilingual, lightweight, out-of-the-box, and multi-instance Minecraft server control panel with Docker support.
+**MCSManager Panel** (MCSM) is a modern, secure, and distributed control panel designed for managing Minecraft and Steam game servers.
 
-MCSManager panel can help you manage multiple physical servers in one place, and create game servers at any host dynamically. It also provides a secure and reliable user permission system for a seamless multi-user experience.
+MCSM has already gained a certain level of popularity within the community, specifically Minecraft. MCSM excels in offering a centralized management solution for multiple server instances and provides a secure and reliable multi-user permission system. In addition, We are committed to supporting server administrators not only for Minecraft but also for Terraria and various Steam games. Our goal is to foster a thriving and supportive community for game server management.
 
-![Screenshot.png](https://mcsmanager.com/main.png)
-![Screenshot.png](https://mcsmanager.com/main2.png)
+![failed_to_load_screenshot.png](/.github/panel-image.png)
+
+![failed_to_load_screenshot.png](/.github/panel-instances.png)
+
+## Features
+
+1. One-click deployment of `Minecraft` Java/Bedrock Server
+2. Compatible with most `Steam` game servers. (e.g. `Palworld`, `Squad`, `Project Zomboid`, `Teraria`, etc.)
+3. Customizable UI, create your own layout
+4. Support `Docker` virtualization, multiuser, and commercial services
+5. Manage multiple servers with a single web interface
+6. More...
 
 <br />
 
 ## Runtime Environment
 
-MCSManager panel can run on both Windows and Linux platforms without a database or complicated system configuration. As a lightweight control panel, you only need Node.js to run it. 
+MCSM supports both `Windows` and `Linux`. The only requirement is `Node.js` and some libraries **for decompression**.
 
-Required Node.js version: **14.17.0** or above.
-
-<br />
-
-## Configurations/Data Directories
-
-Configuration: `data/SystemConfig/config.json`
-
-User data files: `data/User/*.json`
-
-Remote daemon configurations: `data/RemoteServiceConfig/*.json`
-
+Require [Node.js 16.20.2](https://nodejs.org/en) or above.
 
 <br />
 
-
-<br />
-
-## Install
+## Installation
 
 ### Windows
 
-For the Windows systems, the MCSM panel has been **compiled into a click-to-run version**. 
+For Windows, We provides packaged executable files:
 
-Download it from the official site: [https://mcsmanager.com/](https://mcsmanager.com/), **run the program as administrator**, and you will be all set!
+Go to: [https://mcsmanager.com/](https://mcsmanager.com/)
 
 <br />
 
 ### Linux
 
-**Quick Install with one command**
+**One-Command Deployment**
+
+> Script needs to register system services, it requires root permissions.
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/mcsmanager/Script/master/setup_en.sh | bash
+sudo su -c "wget -qO- https://mcsmanager.com/install-v10.sh | bash"
 ```
 
-- The script is designed for Ubuntu/Centos/Debian/Archlinux of AMD64 architecture only.
-- Use `systemctl start mcsm-{web,daemon}` to start service after installtion.
-- Directory for panel components and runtime: `/opt/mcsmanager/`
+**Usage**
+
+```bash
+systemctl start mcsm-{web,daemon}
+systemctl stop mcsm-{web,daemon}
+```
+
+- Only supports Ubuntu/Centos/Debian/Archlinux.
+- Installation directory: `/opt/mcsmanager/`.
 
 <br />
 
 **Linux Manual Installation**
 
-- If the installation script does not work, you can try the following steps to install manually.
+- If the installation script failed to execute correctly, you can try install it manually.
 
 ```bash
-# switch to the installation directory. Please create it in advance with 'mkdir /opt/' if not exist.
+# Create /opt directory if not already
+mkdir /opt
+# Switch to /opt
 cd /opt/
-# Download runtime environment (Node.js). Ignore this step if you have Node.js 14+ installed already.
-wget https://nodejs.org/dist/v14.17.6/node-v14.17.6-linux-x64.tar.gz
-# Decompress archive
-tar -zxvf node-v14.17.6-linux-x64.tar.gz
-# Add program to system PATH
-ln -s /opt/node-v14.17.6-linux-x64/bin/node /usr/bin/node
-ln -s /opt/node-v14.17.6-linux-x64/bin/npm /usr/bin/npm
+# Download Node.js 20.11. If you already have Node.js 16+ installed, ignore this step.
+wget https://nodejs.org/dist/v20.11.0/node-v20.11.0-linux-x64.tar.xz
+# Decompress Node.js source
+tar -xvf node-v20.11.0-linux-x64.tar.xz
+# Add Node.js to system PATH
+ln -s /opt/node-v20.11.0-linux-x64/bin/node /usr/bin/node
+ln -s /opt/node-v20.11.0-linux-x64/bin/npm /usr/bin/npm
 
-# Prepare installation directory
+# Prepare MCSM's installation directory
 mkdir /opt/mcsmanager/
 cd /opt/mcsmanager/
 
-# Download the web project
-git clone https://github.com/MCSManager/MCSManager-Web-Production.git
-# Rename and enter the directory
-mv MCSManager-Web-Production web
-cd web
+# Download MCSManager
+wget https://github.com/MCSManager/MCSManager/releases/latest/download/mcsmanager_linux_release.tar.gz
+tar -zxf mcsmanager_linux_release.tar.gz
+
 # Install dependencies
-npm install --production
-cd /opt/mcsmanager/
+./install.sh
 
-# Download the Daemon
-git clone https://github.com/MCSManager/MCSManager-Daemon-Production.git
-# Rename and enter the directory
-mv MCSManager-Daemon-Production daemon
-cd daemon
-# Install dependencies
-npm install --production
+# Please open two terminals or screens.
 
-# Please open two terminals or Screen
-# Start the daemon first
-cd /opt/mcsmanager/daemon
-# Start the daemon
-node app.js
+# Start the daemon first.
+./start-daemon.sh
 
-# Start the web project (in the second terminal/screen)
-cd /opt/mcsmanager/web
-# start the application
-node app.js
+# Start the web interface at the second terminal or screen.
+./start-web.sh
 
-# Access http://localhost:23333/ for web interface
-# In general, the web application will scan and connect to the local daemon automatically.
+# For web access, go to http://localhost:23333/
+# In general, the web interface will automatically scan and add the local daemon.
 ```
 
-- Note, the above steps do not register the panel components to system service. You have to use 'screen' to manage it or register the system service manually.
-
-<br />
-
-## Update
-
-Upgrading from version `8.X` to `9.X` is not supported. You have to manually import all instance configurations.
-
-Upgrading from version `9.X` to newer:
-For Linux: Execute `git pull` in both `/opt/mcsmanager/web` and `/opt/mcsmanager/daemon`.
-
-For Windows: Download the latest installation pack and overwrite all existing files.
-
-
-> Note, backup of `data` directory before each update is highly recommended.
-
-<br />
-
-## Projects
-
-This software requires all three projects to run. The code you use for installation is the result of compilation and integration.
-
-[**Web/Web Backend**](https://github.com/MCSManager/MCSManager)
-
-- Role: Control Center
-- Responsible for: Backend APIs, user data management, and communication & authentication with daemons.
-
-[**Frontend/UI**](https://github.com/MCSManager/UI)
-
-- Role: The user interfaces for the backend.
-- Responsible for: Displaying statistics via the web interface, sending requests, and communicating with daemons. The final product of this project is pure static files. 
-
-[**Daemon**](https://github.com/MCSManager/Daemon)
-
-- Role: Slave/controlled remote node
-- Responsible for: Controlling all instances on localhost and managing the actual instance process. It is capable to communicate with all objects.
-
-<br />
-
-## Build the Development Environment
-
-This is intended for developers. If you are not a developer, you can safely ignore these.
-
-You can continue to develop or preview all the projects once they are running under the development environment. Please make sure to be in compliance with the license. 
-
-**Web Project**
-
-```bash
-git clone https://github.com/MCSManager/MCSManager.git
-cd MCSManager
-npm install
-npm run start
-# By default, use ts-node to run Typescript code directly
-# By default, run on port 23333.
-
-```
-
-**UI Project**
-
-```bash
-git clone https://github.com/MCSManager/UI.git
-cd UI
-npm install
-npm run serve
-# Preview the interface at http://localhost:8080/
-# All the requests will be redirected to port 23333.
-```
-
-**Daemon Project**
-
-```bash
-git clone https://github.com/MCSManager/Daemon.git
-cd Daemon
-npm install
-npm run start
-# After running, please connect the daemon to the control panel via the web interface.
-# By default, run on port 24444
-```
+This installation approach does not automatically set up MCSManager as a system service. Therefore, it is necessary to use `screen` for management. For those interested in managing MCSManager through a system service, please refer to our wiki/documentation.
 
 <br />
 
 ## Browser Compatibility
 
-- Support mainstream modern browsers like `Chrome` `Firefox` `Safari` `Opera`.
-- `IE` support has been dropped.
+- Supported on modern browsers including `Chrome`, `Firefox`, and `Safari`.
+- Support for `IE` has been discontinued.
 
 <br />
 
-## i18n
+## Development
 
-Currently, MCSManager supports Chinese and English.
+This section is specifically designed for developers. General users may disregard this portion without concern.
 
-The MCSManager internationlization was done by [Lazy](https://github.com/LazyCreeper), [KevinLu2000](https://github.com/KevinLu2000), [zijiren233](https://github.com/zijiren233) and [Unitwk](https://github.com/unitwk).
+### MacOS
+
+```bash
+git clone https://github.com/MCSManager/MCSManager.git
+./install-dependents.sh
+./npm-dev-macos.sh
+```
+
+### Windows
+
+```bash
+git clone https://github.com/MCSManager/MCSManager.git
+./install-dependents.bat
+./npm-dev-windows.bat
+```
+
+### Build Production Version
+
+```bash
+./build.bat # Windows
+./build.sh  # MacOS
+```
+
+Next, you'll need to go to the [PTY](https://github.com/MCSManager/PTY) and [Zip-Tools](https://github.com/MCSManager/Zip-Tools) projects to download the corresponding binary files and place them in the `daemon/lib` directory to ensure the proper functioning of the `Emulation Terminal` and `File Decompression`.
 
 <br />
 
-## Panel Permission
+## Code Contributing
 
-The control panel will check the user list while running. If there is no user available, a default administrator user will be created. 
+If you experience any problems while using MCSManager, you are welcome to [submit an Issue](https://github.com/MCSManager/MCSManager/issues/new/choose). Alternatively, you can fork the project and contribute directly by submitting a Pull Request.
 
-If you forget your only administrator account, you can back up all the current user data, regenerate a new admin account, and overwrite the previous one. 
-
-<br />
-
-## Contribution
-
-If you encounter any issue while using, you can [submit an Issue](https://github.com/MCSManager/MCSManager/issues/new/choose) or submit Pull Request after you fix it in a fork.
-
-The code needs to be in its existing format, and no extra codes should be formatted. For details: [click here](https://github.com/MCSManager/MCSManager/issues/544)。
+Please ensure that any submitted code adheres to our existing coding style. For more details, refer to the guidelines provided in [this issue](https://github.com/MCSManager/MCSManager/issues/544).
 
 <br />
 
-## Report bug
+## BUG Reporting
 
-Feedback on any problem encountered is welcomed and will be responded to in a timely manner.
+**Open Issue:** [Click here](https://github.com/MCSManager/MCSManager/issues/new/choose)
 
-If you find a serious security vulnerability, you can email mcsmanager-dev@outlook.com for a private submission.
+**Security Vulnerability Report:** [SECURITY.md](SECURITY.md)
 
-After the security issue has been resolved, your name will be listed as the bug-finder. 
+<br />
+
+## Internationalization
+
+Thanks to these contributors for providing a substantial amount of translation:
+
+- [KevinLu2000](https://github.com/KevinLu2000)
+- [Unitwk](https://github.com/unitwk)
+- [JianyueLab](https://github.com/JianyueLab)
+- [IceBrick](https://github.com/IceBrick01)
 
 <br />
 
 ## License
 
-Apache-2.0 license
+The source code of MCSManager is licensed under the [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) License.
 
-Copyright 2022 [MCSManager Dev](https://github.com/MCSManager).
-
+Copyright ©2024 MCSManager.
