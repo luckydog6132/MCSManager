@@ -5,7 +5,8 @@ import type {
   QuickStartTemplate,
   Schedule,
   NewScheduleTask,
-  LabelValueOption
+  LabelValueOption,
+  JsonData
 } from "@/types";
 import type { IGlobalInstanceConfig } from "../../../../common/global";
 
@@ -229,13 +230,7 @@ export const createInstance = useDefineApi<
   url: "/api/instance"
 });
 
-export const quickInstallListAddr = useDefineApi<
-  any,
-  {
-    languages: LabelValueOption[];
-    packages: QuickStartTemplate[];
-  }
->({
+export const quickInstallListAddr = useDefineApi<any, QuickStartTemplate>({
   url: "/api/instance/quick_install_list",
   method: "GET"
 });
@@ -250,7 +245,8 @@ export const createAsyncTask = useDefineApi<
     data: {
       time: number;
       newInstanceName: string;
-      targetLink: string;
+      targetLink?: string;
+      setupInfo?: JsonData;
     };
   },
   {
@@ -381,6 +377,19 @@ export const batchKill = useDefineApi<
   url: "/api/instance/multi_kill"
 });
 
+export const batchRestart = useDefineApi<
+  {
+    data: {
+      instanceUuid: string;
+      daemonId: string;
+    }[];
+  },
+  boolean
+>({
+  method: "POST",
+  url: "/api/instance/multi_restart"
+});
+
 export const batchDelete = useDefineApi<
   {
     params: {
@@ -435,5 +444,23 @@ export const scheduleCreate = useDefineApi<
   boolean
 >({
   url: "/api/protected_schedule",
+  method: "POST"
+});
+
+export const reinstallInstance = useDefineApi<
+  {
+    params: {
+      daemonId: string;
+      uuid: string;
+    };
+    data: {
+      targetUrl?: string;
+      title: string;
+      description: string;
+    };
+  },
+  boolean
+>({
+  url: "/api/protected_instance/install_instance",
   method: "POST"
 });

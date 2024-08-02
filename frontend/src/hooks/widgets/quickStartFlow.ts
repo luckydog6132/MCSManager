@@ -1,10 +1,8 @@
-import { isCN, t } from "@/lang/i18n";
+import { t } from "@/lang/i18n";
 import { remoteNodeList } from "@/services/apis";
 import { arrayFilter } from "@/tools/array";
-import type { LayoutCard } from "@/types";
 import {
   AppstoreAddOutlined,
-  AppstoreOutlined,
   AppstoreTwoTone,
   CalculatorTwoTone,
   DatabaseTwoTone,
@@ -89,15 +87,24 @@ export function useQuickStartFlow() {
     appType?: QUICKSTART_ACTION_TYPE;
     createMethod?: QUICKSTART_METHOD;
     daemonId?: string;
+    emptyActionsText?: string;
+    emptyActionsLink?: string;
   }>({
     title: t("TXT_CODE_724ce74d"),
     step: 1,
     actions: step1
   });
 
-  const toStep2 = async (appType: QUICKSTART_ACTION_TYPE) => {
-    formData.step = 2;
+  const toStep2 = async (appType: QUICKSTART_ACTION_TYPE, daemonId?: string) => {
     formData.appType = appType;
+
+    if (daemonId) {
+      toStep3(daemonId);
+      return;
+    }
+
+    formData.step = 2;
+    formData.emptyActionsText = t("TXT_CODE_9337bed1");
     currentIcon.value = DatabaseTwoTone;
     await execute();
     formData.actions = remoteNodes.value
@@ -124,9 +131,8 @@ export function useQuickStartFlow() {
         key: QUICKSTART_METHOD.FAST,
         icon: AppstoreAddOutlined,
         condition: () =>
-          isCN() &&
-          (formData.appType === QUICKSTART_ACTION_TYPE.Minecraft ||
-            formData.appType === QUICKSTART_ACTION_TYPE.Bedrock),
+          formData.appType === QUICKSTART_ACTION_TYPE.Minecraft ||
+          formData.appType === QUICKSTART_ACTION_TYPE.Bedrock,
         click: () => {
           router.push({
             path: "/quickstart/minecraft",

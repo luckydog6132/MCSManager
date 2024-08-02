@@ -177,9 +177,7 @@ const handleDrop = (e: DragEvent) => {
   Modal.confirm({
     title: t("TXT_CODE_52bc24ec") + ` ${files[0].name} ?`,
     icon: h(ExclamationCircleOutlined),
-    content: `${t("TXT_CODE_94bb113a")} ${(files[0].size / 1024 / 1024).toFixed(2)}MB, ${t(
-      "TXT_CODE_fffaeb16"
-    )}`,
+    content: t("TXT_CODE_fffaeb16"),
     onOk() {
       selectedFile(files[0]);
     }
@@ -214,13 +212,6 @@ const menuList = (record: DataType) =>
       condition: () => !isMultiple.value
     },
     {
-      label: t("TXT_CODE_88122886"),
-      key: "zip",
-      icon: h(FileZipOutlined),
-      onClick: () => zipFile(),
-      condition: () => !!isMultiple.value
-    },
-    {
       label: t("TXT_CODE_a64f3007"),
       key: "unzip",
       icon: h(FileZipOutlined),
@@ -245,13 +236,13 @@ const menuList = (record: DataType) =>
       label: t("TXT_CODE_46c4169b"),
       key: "cut",
       icon: h(ScissorOutlined),
-      onClick: () => setClipBoard("move", record.name)
+      onClick: () => setClipBoard("move")
     },
     {
       label: t("TXT_CODE_13ae6a93"),
       key: "copy",
       icon: h(CopyOutlined),
-      onClick: () => setClipBoard("copy", record.name)
+      onClick: () => setClipBoard("copy")
     },
     {
       label: t("TXT_CODE_c83551f5"),
@@ -266,6 +257,12 @@ const menuList = (record: DataType) =>
       icon: h(KeyOutlined),
       onClick: () => changePermission(record.name, record.mode),
       condition: () => !isMultiple.value && fileStatus.value?.platform !== "win32"
+    },
+    {
+      label: t("TXT_CODE_88122886"),
+      key: "zip",
+      icon: h(FileZipOutlined),
+      onClick: () => zipFile()
     },
     {
       label: t("TXT_CODE_ecbd7449"),
@@ -310,6 +307,10 @@ onUnmounted(() => {
             </a-typography-title>
           </template>
           <template #right>
+            <a-typography-text v-if="selectedRowKeys.length">
+              {{ t("TXT_CODE_7b2c5414") + ` ${String(selectedRowKeys.length)} ` + t("TXT_CODE_5cd3b4bd") }}
+            </a-typography-text>
+
             <a-upload
               :before-upload="beforeUpload"
               :max-count="1"
@@ -516,7 +517,12 @@ onUnmounted(() => {
                           type="text"
                           size="small"
                           :style="item.style"
-                          @click="item.onClick"
+                          @click="
+                            () => {
+                              oneSelected(record.name, record as DataType);
+                              item.onClick();
+                            }
+                          "
                         >
                         </a-button>
                       </a-tooltip>
@@ -629,6 +635,7 @@ onUnmounted(() => {
     ref="FileEditorDialog"
     :daemon-id="daemonId"
     :instance-id="instanceId"
+    @save="getFileList"
   />
 </template>
 

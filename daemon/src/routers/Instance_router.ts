@@ -12,7 +12,6 @@ import StopCommand from "../entity/commands/stop";
 import SendCommand from "../entity/commands/cmd";
 import KillCommand from "../entity/commands/kill";
 import { IInstanceDetail, IJson } from "../service/interfaces";
-import { QueryMapWrapper } from "common";
 import ProcessInfoCommand from "../entity/commands/process_info";
 import FileManager from "../service/system_file";
 import { ProcessConfig } from "../entity/instance/process_config";
@@ -30,7 +29,6 @@ routerApp.use((event, ctx, data, next) => {
   if (event === "instance/query_asynchronous") return next();
   if (event === "instance/stop_asynchronous") return next();
   if (event.startsWith("instance")) {
-    // class AOP
     if (data.instanceUuids) return next();
     const instanceUuid = data.instanceUuid;
     if (!InstanceSubsystem.exists(instanceUuid)) {
@@ -313,7 +311,24 @@ routerApp.on("instance/asynchronous", (ctx, data) => {
       taskName: taskName
     })
   );
-  // Instance software update task
+
+  // Install instance via preset package
+  if (taskName === "install_instance" && instance) {
+    instance
+      .execPreset("install", parameter)
+      .then(() => {})
+      .catch((err) => {
+        logger.error(
+          $t("TXT_CODE_Instance_router.performTasksErr", {
+            uuid: instance.instanceUuid,
+            taskName: taskName,
+            err: err
+          })
+        );
+      });
+  }
+
+  // Instance software update via Command
   if (taskName === "update" && instance) {
     instance
       .execPreset("update", parameter)
@@ -333,9 +348,10 @@ routerApp.on("instance/asynchronous", (ctx, data) => {
     const newInstanceName = String(parameter.newInstanceName);
     const targetLink = String(parameter.targetLink);
     logger.info(`Quick install: Name: ${newInstanceName} | Download: ${targetLink}`);
-    const task = createQuickInstallTask(targetLink, newInstanceName);
+    const task = createQuickInstallTask(targetLink, newInstanceName, parameter.setupInfo);
     return protocol.response(ctx, task.toObject());
   }
+
   protocol.response(ctx, true);
 });
 
@@ -464,7 +480,7 @@ routerApp.on("instance/outputlog", async (ctx, data) => {
       return protocol.response(ctx, text);
     }
     protocol.responseError(ctx, new Error($t("TXT_CODE_Instance_router.terminalLogNotExist")), {
-      notPrintErr: true
+      disablePrint: true
     });
   } catch (err: any) {
     protocol.responseError(ctx, err);

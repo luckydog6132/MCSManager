@@ -9,7 +9,7 @@ import { $t } from "../i18n";
 import axios from "axios";
 import { systemConfig } from "../setting";
 import { getUserUuid } from "../service/passport_service";
-import { isHaveInstanceByUuid } from "../service/permission_service";
+import { isHaveInstanceByUuid, isTopPermissionByUuid } from "../service/permission_service";
 import { ROLE } from "../entity/user";
 import { removeTrail } from "common";
 
@@ -198,9 +198,32 @@ router.post("/multi_kill", permission({ level: ROLE.ADMIN }), async (ctx) => {
 });
 
 // [Top-level Permission]
+// restart instance routing in batches
+router.post("/multi_restart", permission({ level: ROLE.ADMIN }), async (ctx) => {
+  try {
+    const instances = ctx.request.body;
+    multiOperationForwarding(instances, async (daemonId: string, instanceUuids: string[]) => {
+      const remoteService = RemoteServiceSubsystem.getInstance(daemonId);
+      new RemoteRequest(remoteService)
+        .request("instance/restart", { instanceUuids })
+        .catch((err) => {});
+    });
+    ctx.body = true;
+  } catch (err) {
+    ctx.body = err;
+  }
+});
+
+// [Top-level Permission]
 // Get quick install list
-router.get("/quick_install_list", permission({ level: ROLE.ADMIN }), async (ctx) => {
-  const ADDR = systemConfig?.quickInstallAddr;
+router.get("/quick_install_list", permission({ level: ROLE.USER }), async (ctx) => {
+  if (systemConfig?.allowUsePreset === false && !isTopPermissionByUuid(getUserUuid(ctx))) {
+    ctx.status = 403;
+    ctx.body = new Error($t("TXT_CODE_b5a47731"));
+    return;
+  }
+
+  const ADDR = systemConfig?.presetPackAddr;
   try {
     const response = await axios.request({
       method: "GET",

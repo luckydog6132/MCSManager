@@ -5,12 +5,14 @@ import fs from "fs-extra";
 import Instance from "../../entity/instance/instance";
 import InstanceSubsystem from "../system_instance";
 import InstanceConfig from "../../entity/instance/Instance_config";
-import { $t, i18next } from "../../i18n";
+import { $t } from "../../i18n";
 import path from "path";
 import { getFileManager } from "../file_router_service";
-import EventEmitter from "events";
-import { IAsyncTask, IAsyncTaskJSON, TaskCenter, AsyncTask } from "./index";
+import { IAsyncTaskJSON, TaskCenter, AsyncTask } from "./index";
 import logger from "../log";
+import { t } from "i18next";
+import type { IJsonData } from "common/global";
+import { InstanceUpdateAction } from "../instance_update_action";
 
 export class QuickInstallTask extends AsyncTask {
   public static TYPE = "QuickInstallTask";
@@ -18,35 +20,50 @@ export class QuickInstallTask extends AsyncTask {
   public instance: Instance;
   public readonly TMP_ZIP_NAME = "mcsm_install_package.zip";
   public readonly ZIP_CONFIG_JSON = "mcsmanager-config.json";
-  public zipPath = "";
+  public filePath = "";
+  public extName = "";
 
   private downloadStream?: fs.WriteStream;
-  private JAVA_17_PATH = path.normalize(
-    path.join(process.cwd(), "lib", "jre17", "bin", "java.exe")
-  );
+  private writeStream?: fs.WriteStream;
+  private updateTask?: InstanceUpdateAction;
 
-  constructor(public instanceName: string, public targetLink: string) {
+  constructor(
+    public instanceName: string,
+    public targetLink?: string,
+    public buildParams?: Partial<InstanceConfig>,
+    curInstance?: Instance
+  ) {
     super();
     const config = new InstanceConfig();
     config.nickname = instanceName;
-    config.cwd = "";
-    config.stopCommand = "stop";
-    config.type = Instance.TYPE_MINECRAFT_JAVA;
-    this.instance = InstanceSubsystem.createInstance(config);
+    config.stopCommand = "^c";
+    if (!curInstance) {
+      config.cwd = "";
+      this.instance = InstanceSubsystem.createInstance(config);
+    } else {
+      this.instance = curInstance;
+    }
     this.taskId = `${QuickInstallTask.TYPE}-${this.instance.instanceUuid}-${v4()}`;
     this.type = QuickInstallTask.TYPE;
+    this.extName = path.extname(this.targetLink ?? "") || ".zip";
   }
 
   private download(): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       try {
-        this.zipPath = path.normalize(path.join(this.instance.config.cwd, this.TMP_ZIP_NAME));
-        const writeStream = fs.createWriteStream(this.zipPath);
+        if (!this.targetLink) return reject(new Error("No targetLink!"));
+        let downloadFileName = this.TMP_ZIP_NAME;
+        if (this.extName !== ".zip") {
+          const url = new URL(this.targetLink);
+          downloadFileName = url.pathname.split("/").pop() || `application${this.extName}`;
+        }
+        this.filePath = path.normalize(path.join(this.instance.config.cwd, downloadFileName));
+        this.writeStream = fs.createWriteStream(this.filePath);
         const response = await axios<Readable>({
           url: this.targetLink,
           responseType: "stream"
         });
-        this.downloadStream = pipeline(response.data, writeStream, (err) => {
+        this.downloadStream = pipeline(response.data, this.writeStream, (err) => {
           if (err) {
             reject(err);
           } else {
@@ -59,42 +76,90 @@ export class QuickInstallTask extends AsyncTask {
     });
   }
 
-  private hasJava17() {
-    return fs.existsSync(this.JAVA_17_PATH);
-  }
-
-  async onStarted() {
+  async onStart() {
     const fileManager = getFileManager(this.instance.instanceUuid);
     try {
-      let result = await this.download();
-      result = await fileManager.unzip(this.TMP_ZIP_NAME, ".", "UTF-8");
-      if (!result) throw new Error($t("TXT_CODE_quick_install.unzipError"));
-      const config = JSON.parse(await fileManager.readFile(this.ZIP_CONFIG_JSON)) as InstanceConfig;
-
-      if (config.startCommand && config.startCommand.includes("{{java}}")) {
-        if (this.hasJava17()) {
-          config.startCommand = config.startCommand.replace("{{java}}", `"${this.JAVA_17_PATH}"`);
-        } else {
-          config.startCommand = config.startCommand.replace("{{java}}", "java");
-        }
+      if (this.targetLink) {
+        let result = await this.download();
+        if (this.extName === ".zip")
+          result = await fileManager.unzip(this.TMP_ZIP_NAME, ".", "UTF-8");
+        if (!result) throw new Error($t("TXT_CODE_quick_install.unzipError"));
       }
 
+      let config: Partial<InstanceConfig>;
+      if (this.buildParams?.startCommand || !fs.existsSync(this.ZIP_CONFIG_JSON)) {
+        config = this.buildParams || {};
+      } else {
+        config = JSON.parse(await fileManager.readFile(this.ZIP_CONFIG_JSON));
+      }
+
+      logger.info(
+        t("TXT_CODE_e5ba712d"),
+        this.instance.config.nickname,
+        this.instance.instanceUuid,
+        "URL:",
+        this.targetLink
+      );
+      logger.info(t("TXT_CODE_ac225d07") + JSON.stringify(config));
+
       this.instance.parameters(config);
+
+      // Render startCommand with ENV
+      if (this.instance.config.startCommand) {
+        let startCommand = this.instance.config.startCommand;
+        const ENV_MAP: IJsonData = {
+          java: "java",
+          cwd: this.instance.config.cwd,
+          rconIp: this.instance.config.rconIp || "localhost",
+          rconPort: String(this.instance.config.rconPort),
+          rconPassword: this.instance.config.rconPassword,
+          nickname: this.instance.config.nickname,
+          instanceUuid: this.instance.instanceUuid
+        };
+        for (const key in ENV_MAP) {
+          const varDefine = `{{${key}}}`;
+          while (startCommand.includes(varDefine))
+            startCommand = startCommand?.replace(varDefine, ENV_MAP[key] || "");
+        }
+        this.instance.parameters({
+          startCommand
+        });
+      }
+
+      if (this.instance?.config?.updateCommand) {
+        try {
+          this.updateTask = new InstanceUpdateAction(this.instance);
+          await this.updateTask.start();
+          await this.updateTask.wait();
+        } catch (error) {}
+      }
+
       this.stop();
     } catch (error: any) {
       this.error(error);
     } finally {
-      fs.remove(fileManager.toAbsolutePath(this.TMP_ZIP_NAME), () => {});
+      if (fs.existsSync(fileManager.toAbsolutePath(this.TMP_ZIP_NAME)))
+        fs.remove(fileManager.toAbsolutePath(this.TMP_ZIP_NAME), () => {});
     }
   }
 
-  async onStopped(): Promise<boolean | void> {
+  async onStop() {
     try {
-      if (this.downloadStream) this.downloadStream.destroy(new Error("STOP TASK"));
-    } catch (error: any) {}
-  }
+      this.writeStream?.destroy();
+      this.writeStream = undefined;
+      this.downloadStream?.destroy();
+      this.downloadStream = undefined;
+    } catch (error) {
+      logger.error("QuickInstallTask -> onStop(): destroy download stream error:", error);
+    }
 
-  onError(): void {}
+    try {
+      await this.updateTask?.stop();
+      this.updateTask = undefined;
+    } catch (error: any) {
+      logger.error("QuickInstallTask -> onStop(): updateTask stop error:", error);
+    }
+  }
 
   toObject(): IAsyncTaskJSON {
     return JSON.parse(
@@ -107,11 +172,17 @@ export class QuickInstallTask extends AsyncTask {
       })
     );
   }
+
+  async onError() {}
 }
 
-export function createQuickInstallTask(targetLink: string, instanceName: string) {
-  if (!targetLink || !instanceName) throw new Error("targetLink or instanceName is null!");
-  const task = new QuickInstallTask(instanceName, targetLink);
+export function createQuickInstallTask(
+  targetLink?: string,
+  instanceName?: string,
+  buildParams?: any
+) {
+  if (!instanceName) throw new Error("Instance name is empty!");
+  const task = new QuickInstallTask(instanceName, targetLink, buildParams);
   TaskCenter.addTask(task);
   return task;
 }

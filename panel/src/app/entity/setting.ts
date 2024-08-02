@@ -31,10 +31,14 @@ export default class SystemConfig {
   // Whether to open the file management function for ordinary users
   canFileManager = true;
 
+  // Whether to allow template-based instance reset, which may pose a security risk.
+  // If you use Docker and need commercial functionality, you can try turning this feature on and testing it.
+  allowUsePreset = false;
+
   // i18n
   language = "en_us";
 
   // Quick installation address
-  quickInstallAddr = "https://mcsmanager.com/mcsmanager-packages.json";
+  presetPackAddr = "https://script.mcsmanager.com/templates.json";
   redisUrl = "";
 }

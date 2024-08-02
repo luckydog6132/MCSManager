@@ -16,7 +16,7 @@
 
 [官方网站](http://mcsmanager.com/) | [使用文档](https://docs.mcsmanager.com/#/zh-cn/) | [QQ 群](https://jq.qq.com/?_wv=1027&k=Pgl9ScGw) | [TG 群](https://t.me/MCSManager_dev) | [成为赞助者](https://afdian.net/a/mcsmanager)
 
-[English](README.md) | [简体中文](README_ZH.md) | [繁體中文](README_TW.md)
+[English](README.md) | [简体中文](README_ZH.md) | [繁體中文](README_TW.md) | [Português BR](README_PTBR.md)
 
 </div>
 
@@ -69,7 +69,7 @@
 **一行命令快速安装**
 
 ```bash
-sudo su -c "wget -qO- https://mcsmanager.com/install-v10.sh | bash"
+sudo su -c "wget -qO- https://script.mcsmanager.com/setup_cn.sh | bash"
 ```
 
 **安装后的使用方法**
@@ -108,7 +108,7 @@ wget https://github.com/MCSManager/MCSManager/releases/latest/download/mcsmanage
 tar -zxf mcsmanager_linux_release.tar.gz
 
 # 安装依赖库
-./install-dependency.sh
+./install.sh
 
 # 请打开两个终端或screen
 

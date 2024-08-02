@@ -16,17 +16,21 @@
 
 [Official Website](http://mcsmanager.com/) | [Docs](https://docs.mcsmanager.com/) | [Discord](https://discord.gg/BNpYMVX7Cd)
 
-[English](README.md) | [简体中文](README_ZH.md) | [繁體中文](README_TW.md)
+[English](README.md) | [简体中文](README_ZH.md) | [繁體中文](README_TW.md) | [Português BR](README_PTBR.md)
 
 </div>
 
 <br />
 
+
+
 ## What is MCSManager?
 
-**MCSManager Panel** (MCSM) is a modern, secure, and distributed control panel designed for managing Minecraft and Steam game servers.
+**MCSManager Panel** (MCSM) is a **modern, secure, and distributed control panel** designed for managing Minecraft and Steam game servers.
 
-MCSM has already gained a certain level of popularity within the community, specifically Minecraft. MCSM excels in offering a centralized management solution for multiple server instances and provides a secure and reliable multi-user permission system. In addition, We are committed to supporting server administrators not only for Minecraft but also for Terraria and various Steam games. Our goal is to foster a thriving and supportive community for game server management.
+MCSManager has already gained a certain level of popularity within the community, specifically Minecraft. MCSManager excels in offering a centralized management solution for multiple server instances and provides a secure and reliable multi-user permission system. In addition, We are committed to supporting server administrators not only for Minecraft but also for Terraria and various Steam games. Our goal is to foster a thriving and supportive community for game server management.
+
+MCSManager **supports English, French, German, Italian, Japanese, Portuguese, Simplified Chinese, and Traditional Chinese**, with plans to add support for more languages in the future!
 
 ![failed_to_load_screenshot.png](/.github/panel-image.png)
 
@@ -68,7 +72,7 @@ Go to: [https://mcsmanager.com/](https://mcsmanager.com/)
 > Script needs to register system services, it requires root permissions.
 
 ```bash
-sudo su -c "wget -qO- https://mcsmanager.com/install-v10.sh | bash"
+sudo su -c "wget -qO- https://script.mcsmanager.com/setup.sh | bash"
 ```
 
 **Usage**

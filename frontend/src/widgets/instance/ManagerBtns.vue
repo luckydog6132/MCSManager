@@ -40,14 +40,14 @@ const props = defineProps<{
   card: LayoutCard;
 }>();
 
-const { isAdmin } = useAppStateStore();
+const { isAdmin, state } = useAppStateStore();
 
 const { getMetaOrRouteValue } = useLayoutCardTools(props.card);
 
 const instanceId = getMetaOrRouteValue("instanceId");
 const daemonId = getMetaOrRouteValue("daemonId");
 
-const { instanceInfo, execute } = useInstanceInfo({
+const { instanceInfo, execute, isGlobalTerminal } = useInstanceInfo({
   instanceId,
   daemonId,
   autoRefresh: true
@@ -72,10 +72,6 @@ const refreshInstanceInfo = async () => {
     forceRequest: true
   });
 };
-
-const isGlobalTerminal = computed(() => {
-  return instanceInfo.value?.config.nickname === GLOBAL_INSTANCE_NAME;
-});
 
 const btns = computed(() => {
   if (!instanceInfo.value) return [];
@@ -103,7 +99,8 @@ const btns = computed(() => {
       icon: FolderOpenOutlined,
       click: () => {
         toPage({ path: "/instances/terminal/files" });
-      }
+      },
+      condition: () => state.settings.canFileManager || isAdmin.value
     },
     {
       title: t("TXT_CODE_656a85d8"),

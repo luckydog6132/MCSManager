@@ -5,7 +5,9 @@ import type {
   ILayoutCardParams as GlobalLayoutCardParams,
   IJsonData,
   IMapData,
-  IGlobalInstanceDockerConfig
+  IGlobalInstanceDockerConfig,
+  IQuickStartTemplate,
+  IQuickStartPackages
 } from "../../../common/global";
 import type { INSTANCE_STATUS_CODE } from "./const";
 
@@ -66,8 +68,9 @@ export interface Settings {
   loginInfo: string;
   canFileManager: boolean;
   language: string;
-  quickInstallAddr: string;
+  presetPackAddr: string;
   redisUrl: string;
+  allowUsePreset: boolean;
 }
 
 export interface ImageInfo {
@@ -191,17 +194,8 @@ export interface NewInstanceForm {
   docker: IGlobalInstanceDockerConfig;
 }
 
-export interface QuickStartTemplate {
-  language: string;
-  description: string;
-  title: string;
-  runtime: string;
-  size: string;
-  hardware: string;
-  remark: string;
-  targetLink: string;
-  author: string;
-}
+export type QuickStartTemplate = IQuickStartTemplate;
+export type QuickStartPackages = IQuickStartPackages;
 
 export interface LabelValueOption {
   label: string;
@@ -229,4 +223,14 @@ export interface NewScheduleTask {
   time: string;
   action: string;
   type: string;
+}
+
+export interface PanelStatus {
+  isInstall: boolean;
+  language: string;
+  versionChange?: boolean;
+  settings: {
+    canFileManager: boolean;
+    allowUsePreset: boolean;
+  };
 }

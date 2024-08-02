@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LeftMenusPanel from "@/components/LeftMenusPanel.vue";
-import { getCurrentLang, isCN, t } from "@/lang/i18n";
+import { SUPPORTED_LANGS, isCN, t } from "@/lang/i18n";
 import type { LayoutCard, Settings } from "@/types";
 import { onMounted, ref } from "vue";
 import { Modal, message } from "ant-design-vue";
@@ -20,7 +20,6 @@ import {
 
 import { settingInfo, setSettingInfo } from "@/services/apis";
 import Loading from "@/components/Loading.vue";
-import { computed } from "vue";
 import { useUploadFileDialog } from "@/components/fc";
 import { useLayoutConfigStore } from "../stores/useLayoutConfig";
 import { useAppConfigStore } from "@/stores/useAppConfigStore";
@@ -81,20 +80,7 @@ const menus = [
 ];
 
 // DO NOT I18N
-const allLanguages = [
-  {
-    label: `简体中文`,
-    value: "zh_cn"
-  },
-  {
-    label: "English",
-    value: "en_us"
-  },
-  {
-    label: "繁體中文",
-    value: "zh_tw"
-  }
-];
+const allLanguages = SUPPORTED_LANGS;
 
 const allYesNo = [
   {
@@ -231,13 +217,13 @@ onMounted(async () => {
                     />
                   </a-form-item>
 
-                  <a-form-item v-if="isCN()">
+                  <a-form-item>
                     <a-typography-title :level="5">{{ t("TXT_CODE_b2767aa2") }}</a-typography-title>
                     <a-typography-paragraph type="secondary">
                       {{ t("TXT_CODE_b1f833f3") }}
                     </a-typography-paragraph>
                     <a-input
-                      v-model:value="formData.quickInstallAddr"
+                      v-model:value="formData.presetPackAddr"
                       :placeholder="t('TXT_CODE_4ea93630')"
                     />
                   </a-form-item>
@@ -319,8 +305,8 @@ onMounted(async () => {
                       {{ t("TXT_CODE_abfe9512") }}
                     </a-button>
                     <a-button danger @click="handleSaveBgUrl('')">
-                      {{ t("TXT_CODE_50d471b2") }}</a-button
-                    >
+                      {{ t("TXT_CODE_50d471b2") }}
+                    </a-button>
                   </a-form-item>
                 </a-form>
               </div>
@@ -369,6 +355,26 @@ onMounted(async () => {
 
                   <a-form-item>
                     <a-typography-title :level="5">
+                      {{ t("TXT_CODE_a5f01916") }}
+                    </a-typography-title>
+                    <a-typography-paragraph>
+                      <a-typography-text type="secondary">
+                        {{ t("TXT_CODE_f5f9664") }}
+                      </a-typography-text>
+                    </a-typography-paragraph>
+                    <a-select v-model:value.prop="formData.allowUsePreset" style="max-width: 320px">
+                      <a-select-option
+                        v-for="item in allYesNo"
+                        :key="item.value"
+                        :value="item.value"
+                      >
+                        {{ item.label }}
+                      </a-select-option>
+                    </a-select>
+                  </a-form-item>
+
+                  <a-form-item>
+                    <a-typography-title :level="5">
                       {{ t("TXT_CODE_405cd346") }}
                     </a-typography-title>
                     <a-typography-paragraph>
@@ -394,11 +400,7 @@ onMounted(async () => {
                     </a-typography-title>
                     <a-typography-paragraph>
                       <a-typography-text type="secondary">
-                        {{
-                          t(
-                            "TXT_CODE_ae575e12"
-                          )
-                        }}
+                        {{ t("TXT_CODE_ae575e12") }}
                       </a-typography-text>
                     </a-typography-paragraph>
 

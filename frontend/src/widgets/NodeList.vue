@@ -4,7 +4,6 @@ import { ref } from "vue";
 import { t } from "@/lang/i18n";
 import { SearchOutlined, ClusterOutlined } from "@ant-design/icons-vue";
 import BetweenMenus from "@/components/BetweenMenus.vue";
-import { message } from "ant-design-vue";
 import { reportErrorMsg } from "@/tools/validator";
 import NodeItem from "./node/NodeItem.vue";
 import { useRemoteNode } from "../hooks/useRemoteNode";
@@ -30,7 +29,6 @@ const refresh = async () => {
   try {
     refreshLoading.value = true;
     await refreshOverviewInfo();
-    message.success(t("TXT_CODE_fbde647e"));
   } catch (error: any) {
     reportErrorMsg(error.message);
   } finally {
@@ -39,7 +37,7 @@ const refresh = async () => {
 };
 
 const handleOpenDetailDialog = async () => {
-  await nodeDetailDialog.value?.openDialog();
+  nodeDetailDialog.value?.openDialog();
 };
 </script>
 
@@ -55,7 +53,7 @@ const handleOpenDetailDialog = async () => {
             </a-typography-title>
           </template>
           <template #right>
-            <a-button :loading="refreshLoading" @click="refresh">
+            <a-button :disabled="refreshLoading" :loading="refreshLoading" @click="refresh">
               {{ t("TXT_CODE_b76d94e0") }}
             </a-button>
             <a-button type="primary" @click="handleOpenDetailDialog">
@@ -83,6 +81,7 @@ const handleOpenDetailDialog = async () => {
                   v-model:value.trim="operationForm.name"
                   :placeholder="t('TXT_CODE_461d1a01')"
                   style="width: calc(100% - 80px)"
+                  @change="operationForm.current = 1"
                 >
                   <template #suffix>
                     <search-outlined />
@@ -95,14 +94,31 @@ const handleOpenDetailDialog = async () => {
       </a-col>
 
       <a-col :span="24">
-        <a-typography-text type="secondary">
-          {{ t("TXT_CODE_f9a92e38") }}
-          <br />
-          {{ t("TXT_CODE_a65c65c2") }}
-        </a-typography-text>
+        <div class="desc">
+          <a-typography-text type="secondary">
+            {{ t("TXT_CODE_f9a92e38") }}
+            <br />
+            {{ t("TXT_CODE_a65c65c2") }}
+          </a-typography-text>
+          <div class="pagination">
+            <a-pagination
+              :current="operationForm.current"
+              :total="operationForm.total"
+              :page-size="operationForm.pageSize"
+              show-size-changer
+              @show-size-change="(current, size) => (operationForm.pageSize = size)"
+              @change="operationForm.current = $event"
+            ></a-pagination>
+          </div>
+        </div>
       </a-col>
-      <fade-up-animation :delay="3000">
-        <a-col v-for="item in remotes" :key="item.uuid" :span="24" :lg="12">
+      <fade-up-animation v-if="!refreshLoading" :delay="3000">
+        <a-col
+          v-for="item in remotes"
+          :key="item.uuid + item.available + item.ip"
+          :span="24"
+          :lg="12"
+        >
           <NodeItem :item="item"></NodeItem>
         </a-col>
       </fade-up-animation>
@@ -122,9 +138,21 @@ const handleOpenDetailDialog = async () => {
   }
 }
 
+.desc {
+  display: flex;
+  justify-content: space-between;
+}
+
 @media (max-width: 992px) {
   .search-input {
     width: 100% !important;
+  }
+
+  .desc {
+    flex-direction: column;
+    .pagination {
+      margin-top: 10px;
+    }
   }
 }
 </style>

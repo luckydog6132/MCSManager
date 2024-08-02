@@ -111,7 +111,7 @@ const loadImages = async () => {
 
     if (images.value) {
       for (const iterator of images.value) {
-        const repoTags = (iterator?.RepoTags ?? [])[0];
+        const repoTags = iterator?.RepoTags?.[0];
         if (repoTags)
           dockerImages.value.push({
             label: repoTags,
@@ -154,16 +154,16 @@ const loadNetworkModes = async () => {
 
 const rules: Record<string, Rule[]> = {
   nickname: [{ required: true, message: t("TXT_CODE_68a504b3") }],
-  // startCommand: [
-  //   {
-  //     required: true,
-  //     validator: async (_rule: Rule, value: string) => {
-  //       if (value === "") throw new Error(t("TXT_CODE_4e810102"));
-  //       if (value.includes("\n")) throw new Error(t("TXT_CODE_bbbda29"));
-  //     },
-  //     trigger: "change"
-  //   }
-  // ],
+  startCommand: [
+    {
+      required: true,
+      validator: async (_rule: Rule, value: string) => {
+        if (value === "") throw new Error(t("TXT_CODE_4e810102"));
+        if (value.includes("\n")) throw new Error(t("TXT_CODE_bbbda29"));
+      },
+      trigger: "change"
+    }
+  ],
   dockerImage: [
     {
       required: true,
@@ -511,7 +511,7 @@ defineExpose({
             <a-form-item>
               <a-typography-title :level="5">{{ t("TXT_CODE_9c247f6") }}</a-typography-title>
               <a-typography-paragraph>
-                <a-typography-text type="secondary">
+                <a-typography-text type="secondary" class="two-line-height">
                   {{ t("TXT_CODE_df3fdec") }}
                 </a-typography-text>
               </a-typography-paragraph>
@@ -552,7 +552,7 @@ defineExpose({
             <a-form-item>
               <a-typography-title :level="5">{{ t("TXT_CODE_cf88c936") }}</a-typography-title>
               <a-typography-paragraph>
-                <a-typography-text type="secondary">
+                <a-typography-text type="secondary" class="two-line-height">
                   {{ t("TXT_CODE_1a37f514") }}
                 </a-typography-text>
               </a-typography-paragraph>
@@ -568,7 +568,7 @@ defineExpose({
             <a-form-item>
               <a-typography-title :level="5">{{ t("TXT_CODE_b916a8dc") }}</a-typography-title>
               <a-typography-paragraph>
-                <a-typography-text type="secondary">
+                <a-typography-text type="secondary" class="two-line-height">
                   {{ t("TXT_CODE_33ce1c5c") }}
                 </a-typography-text>
               </a-typography-paragraph>
@@ -583,7 +583,7 @@ defineExpose({
             <a-form-item>
               <a-typography-title :level="5">{{ t("TXT_CODE_3e68ca00") }}</a-typography-title>
               <a-typography-paragraph>
-                <a-typography-text type="secondary">
+                <a-typography-text type="secondary" class="two-line-height">
                   {{ t("TXT_CODE_828ea87f") }}
                 </a-typography-text>
               </a-typography-paragraph>
@@ -599,7 +599,7 @@ defineExpose({
             <a-form-item>
               <a-typography-title :level="5">{{ t("TXT_CODE_53046822") }}</a-typography-title>
               <a-typography-paragraph>
-                <a-typography-text type="secondary">
+                <a-typography-text type="secondary" class="two-line-height">
                   {{ t("TXT_CODE_750ab5c6") }}
                 </a-typography-text>
               </a-typography-paragraph>
@@ -618,7 +618,7 @@ defineExpose({
             <a-form-item>
               <a-typography-title :level="5">{{ t("TXT_CODE_b0c4e4ae") }}</a-typography-title>
               <a-typography-paragraph>
-                <a-typography-text type="secondary">
+                <a-typography-text type="secondary" class="two-line-height">
                   {{ t("TXT_CODE_2b9e9b5") }}
                 </a-typography-text>
               </a-typography-paragraph>
@@ -637,7 +637,7 @@ defineExpose({
             <a-form-item>
               <a-typography-title :level="5">{{ t("TXT_CODE_6fe24924") }}</a-typography-title>
               <a-typography-paragraph>
-                <a-typography-text type="secondary">
+                <a-typography-text type="secondary" class="two-line-height">
                   {{ t("TXT_CODE_a0d214ac") }}
                 </a-typography-text>
               </a-typography-paragraph>
@@ -652,7 +652,7 @@ defineExpose({
             <a-form-item>
               <a-typography-title :level="5">{{ t("TXT_CODE_10194e6a") }}</a-typography-title>
               <a-typography-paragraph>
-                <a-typography-text type="secondary">
+                <a-typography-text type="secondary" class="two-line-height">
                   {{ t("TXT_CODE_97655c5d") }}
                 </a-typography-text>
               </a-typography-paragraph>

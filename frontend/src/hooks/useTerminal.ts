@@ -13,6 +13,7 @@ import { INSTANCE_STATUS_CODE } from "@/types/const";
 import { useLayoutConfigStore } from "@/stores/useLayoutConfig";
 import { useCommandHistory } from "@/hooks/useCommandHistory";
 import { removeTrail } from "@/tools/string";
+import { GLOBAL_INSTANCE_NAME } from "@/config/const";
 
 export const TERM_COLOR = {
   TERM_RESET: "\x1B[0m",
@@ -63,6 +64,10 @@ export function useTerminal() {
   const isConnect = ref<boolean>(false);
   const socketAddress = ref("");
 
+  const isGlobalTerminal = computed(() => {
+    return state.value?.config.nickname === GLOBAL_INSTANCE_NAME;
+  });
+
   let fitAddonTask: NodeJS.Timer;
   let cachedSize = {
     w: 160,
@@ -88,7 +93,7 @@ export function useTerminal() {
       path: (!!remoteInfo.prefix ? removeTrail(remoteInfo.prefix, "/") : "") + "/socket.io",
       multiplex: false,
       reconnectionDelayMax: 1000 * 10,
-      timeout: 1000 * 10,
+      timeout: 1000 * 30,
       reconnection: true,
       reconnectionAttempts: 3,
       rejectUnauthorized: false
@@ -236,15 +241,18 @@ export function useTerminal() {
 
   const isStopped = computed(() => state?.value?.status === INSTANCE_STATUS_CODE.STOPPED);
   const isRunning = computed(() => state?.value?.status === INSTANCE_STATUS_CODE.RUNNING);
+  const isBuys = computed(() => state?.value?.status === INSTANCE_STATUS_CODE.BUSY);
 
   return {
     events,
     state,
     isRunning,
+    isBuys,
     isStopped,
     terminal,
     socketAddress,
     isConnect,
+    isGlobalTerminal,
 
     execute,
     initTerminalWindow,
